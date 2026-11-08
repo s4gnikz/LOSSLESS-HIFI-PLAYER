@@ -9,6 +9,7 @@ import { GitHubSyncModal } from './components/GitHubSyncModal';
 import { TrackInfoModal } from './components/TrackInfoModal';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { MusicSearchModal } from './components/MusicSearchModal';
+import { DarkThemePreset, getInitialTheme, applyTheme } from './services/themeService';
 import { audioEngine, PREBUILT_EQ_PRESETS } from './services/audioEngine';
 import { PRESET_DEMO_TRACKS, generateDemoAudioBuffer } from './services/demoTracks';
 import { AudioTrack, EQPreset, SpatialSettings, AudioEngineMetrics } from './types/audio';
@@ -34,6 +35,12 @@ export const App: React.FC = () => {
   const [remoteUrl, setRemoteUrl] = useState<string>(() => {
     return localStorage.getItem('aura_github_remote_url') || 'https://github.com/s4gnikz/LOSSLESS-HIFI-PLAYER.git';
   });
+
+  const [theme, setTheme] = useState<DarkThemePreset>(getInitialTheme);
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
 
   const [spatialSettings, setSpatialSettings] = useState<SpatialSettings>(audioEngine.getSpatialSettings());
   const [currentPreset, setCurrentPreset] = useState<EQPreset>(audioEngine.getCurrentPreset());
@@ -280,7 +287,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-audiophile-950 text-slate-100 flex flex-col pb-36">
+    <div className="min-h-screen bg-audiophile-950 text-stone-100 flex flex-col pb-36 font-sans">
       {/* Top Audiophile Header */}
       <Header
         metrics={metrics}
@@ -295,6 +302,8 @@ export const App: React.FC = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isDolbyAtmosActive={spatialSettings.enabled && spatialSettings.mode !== 'stereo'}
+        currentTheme={theme}
+        onSelectTheme={setTheme}
       />
 
       {/* Main View Area */}

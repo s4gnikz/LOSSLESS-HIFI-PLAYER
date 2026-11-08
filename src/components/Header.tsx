@@ -1,6 +1,7 @@
-import React from 'react';
-import { Sparkles, Sliders, Volume2, ShieldCheck, Github, Radio, CheckCircle2, HelpCircle, Search } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sparkles, Sliders, Volume2, ShieldCheck, Github, Radio, CheckCircle2, HelpCircle, Search, Moon } from 'lucide-react';
 import { AudioEngineMetrics } from '../types/audio';
+import { DarkThemePreset, THEME_PRESETS } from '../services/themeService';
 
 interface HeaderProps {
   metrics: AudioEngineMetrics;
@@ -12,6 +13,8 @@ interface HeaderProps {
   activeTab: 'player' | 'spatial' | 'eq' | 'visualizer';
   setActiveTab: (tab: 'player' | 'spatial' | 'eq' | 'visualizer') => void;
   isDolbyAtmosActive: boolean;
+  currentTheme?: DarkThemePreset;
+  onSelectTheme?: (theme: DarkThemePreset) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -23,7 +26,9 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSearch,
   activeTab,
   setActiveTab,
-  isDolbyAtmosActive
+  isDolbyAtmosActive,
+  currentTheme = 'warm-dark',
+  onSelectTheme
 }) => {
   return (
     <header className="border-b border-audiophile-800 bg-audiophile-950/80 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 py-3.5">
@@ -70,6 +75,22 @@ export const Header: React.FC<HeaderProps> = ({
                   <Search className="w-4 h-4" />
                 </button>
               </>
+            )}
+            {onSelectTheme && (
+              <button
+                onClick={() => {
+                  const nextTheme: Record<DarkThemePreset, DarkThemePreset> = {
+                    'warm-dark': 'oled-dark',
+                    'oled-dark': 'system-dark',
+                    'system-dark': 'warm-dark'
+                  };
+                  onSelectTheme(nextTheme[currentTheme || 'warm-dark']);
+                }}
+                className="p-2 rounded-lg bg-audiophile-850 hover:bg-audiophile-800 border border-audiophile-700 text-amber-300 text-xs"
+                title="Switch Theme Preset"
+              >
+                {currentTheme === 'oled-dark' ? '🖤' : currentTheme === 'system-dark' ? '💻' : '🌙'}
+              </button>
             )}
             <button
               onClick={onOpenGitHubModal}
@@ -204,6 +225,56 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <HelpCircle className="w-4 h-4" />
             </button>
+          )}
+
+          {/* Eye-Friendly Warm / OLED / System Theme Switcher */}
+          {onSelectTheme && (
+            <div className="relative group/theme">
+              <button
+                onClick={() => {
+                  const nextTheme: Record<DarkThemePreset, DarkThemePreset> = {
+                    'warm-dark': 'oled-dark',
+                    'oled-dark': 'system-dark',
+                    'system-dark': 'warm-dark'
+                  };
+                  onSelectTheme(nextTheme[currentTheme || 'warm-dark']);
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-audiophile-850 hover:bg-audiophile-800 text-stone-200 border border-audiophile-700 text-xs font-medium transition-all shadow-sm"
+                title="Theme: Warm Eye-Friendly / OLED Black / System"
+              >
+                <span>{currentTheme === 'oled-dark' ? '🖤' : currentTheme === 'system-dark' ? '💻' : '🌙'}</span>
+                <span className="font-mono text-[11px] text-stone-300">
+                  {currentTheme === 'oled-dark' ? 'OLED' : currentTheme === 'system-dark' ? 'System' : 'Warm'}
+                </span>
+              </button>
+
+              {/* Hover Dropdown Menu */}
+              <div className="absolute right-0 top-full mt-1.5 w-52 p-1.5 rounded-xl bg-audiophile-900 border border-audiophile-700 shadow-2xl opacity-0 pointer-events-none group-hover/theme:opacity-100 group-hover/theme:pointer-events-auto transition-all z-50 space-y-1">
+                {THEME_PRESETS.map((p) => {
+                  const isSelected = (currentTheme || 'warm-dark') === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => onSelectTheme(p.id)}
+                      className={`w-full text-left p-2 rounded-lg text-xs font-mono transition-all flex items-center justify-between ${
+                        isSelected
+                          ? 'bg-amber-500/15 text-gold-glow border border-gold-atmos/40'
+                          : 'text-stone-300 hover:bg-audiophile-800 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{p.icon}</span>
+                        <div>
+                          <div className="font-bold text-[11px]">{p.shortName}</div>
+                          <div className="text-[9px] text-stone-500">{p.badge}</div>
+                        </div>
+                      </div>
+                      {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-gold-atmos" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           )}
 
           {/* GitHub Sync Button */}

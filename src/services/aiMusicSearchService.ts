@@ -420,3 +420,4 @@ export async function executeAIMusicSearch(userPrompt: string): Promise<AIPrompt
     recommendedTracks
   };
 }
+
