@@ -75,6 +75,9 @@ class AudioEngineService {
   private audioCtx: AudioContext | null = null;
   private currentBuffer: AudioBuffer | null = null;
   private sourceNode: AudioBufferSourceNode | null = null;
+  private audioElement: HTMLAudioElement | null = null;
+  private mediaElementSource: MediaElementAudioSourceNode | null = null;
+  private isMediaElementMode: boolean = false;
 
   // Signal processing nodes
   private preampGain: GainNode | null = null;
@@ -476,9 +479,58 @@ class AudioEngineService {
   public async loadAudioBuffer(buffer: AudioBuffer): Promise<void> {
     const wasPlaying = this.isPlaying;
     this.stop();
+    this.isMediaElementMode = false;
+    if (this.audioElement) {
+      this.audioElement.pause();
+    }
     this.currentBuffer = buffer;
     this.currentDuration = buffer.duration;
     this.pausedAt = 0;
+
+    if (wasPlaying) {
+      this.play();
+    }
+  }
+
+  public async loadAudioUrl(url: string, duration?: number): Promise<void> {
+    const wasPlaying = this.isPlaying;
+    this.stop();
+    this.isMediaElementMode = true;
+    this.currentBuffer = null;
+    this.currentDuration = duration || 180;
+    this.pausedAt = 0;
+
+    const ctx = this.getAudioContext();
+    if (!this.audioElement) {
+      this.audioElement = new Audio();
+      this.audioElement.crossOrigin = 'anonymous';
+      this.mediaElementSource = ctx.createMediaElementSource(this.audioElement);
+      if (this.preampGain) {
+        this.mediaElementSource.connect(this.preampGain);
+      }
+      if (this.directDryGain && this.softLimiter) {
+        this.mediaElementSource.connect(this.directDryGain);
+      }
+      this.audioElement.onended = () => {
+        this.isPlaying = false;
+        this.pausedAt = 0;
+        this.cancelTimeUpdater();
+        if (this.onEndedCallback) {
+          this.onEndedCallback();
+        }
+      };
+      this.audioElement.ontimeupdate = () => {
+        if (this.audioElement && this.onTimeUpdateCallback && this.isMediaElementMode) {
+          if (this.audioElement.duration && !isNaN(this.audioElement.duration) && isFinite(this.audioElement.duration)) {
+            this.currentDuration = this.audioElement.duration;
+          }
+          this.onTimeUpdateCallback(this.audioElement.currentTime, this.currentDuration);
+        }
+      };
+    }
+
+    this.audioElement.src = url;
+    this.audioElement.load();
 
     if (wasPlaying) {
       this.play();
@@ -494,6 +546,13 @@ class AudioEngineService {
 
   public play() {
     const ctx = this.getAudioContext();
+
+    if (this.isMediaElementMode && this.audioElement) {
+      this.audioElement.play().catch(e => console.warn("Audio stream playback:", e));
+      this.isPlaying = true;
+      return;
+    }
+
     if (!this.currentBuffer) return;
 
     if (this.isPlaying) return;
@@ -532,6 +591,12 @@ class AudioEngineService {
   }
 
   public pause() {
+    if (this.isMediaElementMode && this.audioElement) {
+      this.audioElement.pause();
+      this.isPlaying = false;
+      return;
+    }
+
     if (!this.isPlaying || !this.audioCtx) return;
     this.pausedAt = this.audioCtx.currentTime - this.startTime;
     this.isPlaying = false;
@@ -550,12 +615,21 @@ class AudioEngineService {
   public stop() {
     this.pause();
     this.pausedAt = 0;
+    if (this.audioElement) {
+      this.audioElement.pause();
+      this.audioElement.currentTime = 0;
+    }
     if (this.onTimeUpdateCallback) {
       this.onTimeUpdateCallback(0, this.currentDuration);
     }
   }
 
   public seek(seconds: number) {
+    if (this.isMediaElementMode && this.audioElement) {
+      this.audioElement.currentTime = seconds;
+      return;
+    }
+
     const target = Math.max(0, Math.min(seconds, this.currentDuration));
     const wasPlaying = this.isPlaying;
     this.pause();
@@ -595,6 +669,9 @@ class AudioEngineService {
     if (this.sourceNode) {
       this.sourceNode.loop = loop;
     }
+    if (this.audioElement) {
+      this.audioElement.loop = loop;
+    }
   }
 
   public getIsLoop(): boolean {
@@ -602,6 +679,9 @@ class AudioEngineService {
   }
 
   public getCurrentTime(): number {
+    if (this.isMediaElementMode && this.audioElement) {
+      return this.audioElement.currentTime || 0;
+    }
     if (!this.audioCtx) return this.pausedAt;
     if (this.isPlaying) {
       const elapsed = (this.audioCtx.currentTime - this.startTime) % this.currentDuration;

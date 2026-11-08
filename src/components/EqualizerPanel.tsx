@@ -45,6 +45,10 @@ export const EqualizerPanel: React.FC<EqualizerPanelProps> = ({
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [copyFeedback, setCopyFeedback] = useState(false);
 
+  // Interactive Curve Dragging state
+  const [draggingBandIndex, setDraggingBandIndex] = useState<number | null>(null);
+  const [hoveredBandIndex, setHoveredBandIndex] = useState<number | null>(null);
+
   // Save custom preset
   const handleSaveCustomPreset = () => {
     if (!newPresetName.trim()) return;
@@ -103,6 +107,81 @@ export const EqualizerPanel: React.FC<EqualizerPanelProps> = ({
           console.error("Failed to parse EQ presets JSON:", err);
         }
       };
+    }
+  };
+
+  // Interactive Curve Canvas Pointer Handlers (Direct Spline Node Dragging)
+  const handleCanvasPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = curveCanvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+
+    let nearestIdx: number | null = null;
+    let minDist = 30;
+
+    currentPreset.gains.forEach((gain, idx) => {
+      const freq = EQ_FREQUENCIES[idx];
+      const logMin = Math.log10(20);
+      const logMax = Math.log10(20000);
+      const nodeX = ((Math.log10(freq) - logMin) / (logMax - logMin)) * canvas.width;
+      const clampedGain = Math.max(-15, Math.min(15, gain + currentPreset.preamp));
+      const nodeY = canvas.height - ((clampedGain - (-15)) / 30) * canvas.height;
+
+      const dist = Math.hypot(mx - nodeX, my - nodeY);
+      if (dist < minDist) {
+        minDist = dist;
+        nearestIdx = idx;
+      }
+    });
+
+    if (nearestIdx !== null) {
+      setDraggingBandIndex(nearestIdx);
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    }
+  };
+
+  const handleCanvasPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = curveCanvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleY = canvas.height / rect.height;
+    const my = (e.clientY - rect.top) * scaleY;
+
+    if (draggingBandIndex !== null) {
+      const frac = (canvas.height - my) / canvas.height;
+      const totalDb = -15 + frac * 30;
+      const newGain = Math.max(-12, Math.min(12, totalDb - currentPreset.preamp));
+      onUpdateBand(draggingBandIndex, Math.round(newGain * 2) / 2);
+    } else {
+      const scaleX = canvas.width / rect.width;
+      const mx = (e.clientX - rect.left) * scaleX;
+      let found = false;
+      currentPreset.gains.forEach((gain, idx) => {
+        const freq = EQ_FREQUENCIES[idx];
+        const logMin = Math.log10(20);
+        const logMax = Math.log10(20000);
+        const nodeX = ((Math.log10(freq) - logMin) / (logMax - logMin)) * canvas.width;
+        const clampedGain = Math.max(-15, Math.min(15, gain + currentPreset.preamp));
+        const nodeY = canvas.height - ((clampedGain - (-15)) / 30) * canvas.height;
+        if (Math.hypot(mx - nodeX, my - nodeY) < 22) {
+          setHoveredBandIndex(idx);
+          found = true;
+        }
+      });
+      if (!found) setHoveredBandIndex(null);
+    }
+  };
+
+  const handleCanvasPointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (draggingBandIndex !== null) {
+      setDraggingBandIndex(null);
+      try {
+        (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {}
     }
   };
 

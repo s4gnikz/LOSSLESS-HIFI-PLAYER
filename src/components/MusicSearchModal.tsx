@@ -24,6 +24,7 @@ export const MusicSearchModal: React.FC<MusicSearchModalProps> = ({
   const [genreFilter, setGenreFilter] = useState('All');
   const [onlineResults, setOnlineResults] = useState<OnlineTrackResult[]>(CURATED_ONLINE_TRACKS);
   const [addedTrackIds, setAddedTrackIds] = useState<Set<string>>(new Set());
+  const [isSearching, setIsSearching] = useState(false);
 
   // Custom Stream URL inputs
   const [customUrl, setCustomUrl] = useState('');
@@ -34,15 +35,27 @@ export const MusicSearchModal: React.FC<MusicSearchModalProps> = ({
   const [isLoadingCustom, setIsLoadingCustom] = useState(false);
   const [customError, setCustomError] = useState<string | null>(null);
 
-  const genres = ['All', 'Dolby Atmos', 'Classical', 'Jazz', 'Electronic', 'Binaural / Ambient'];
+  const genres = ['All', 'Dolby Atmos', 'Hi-Fi Radio', 'Classical', 'Jazz', 'Electronic', 'Rock', 'Pop'];
 
-  // Search online tracks
+  // Search online tracks across 100+ Million songs
   useEffect(() => {
     let active = true;
-    searchOnlineTracks(searchQuery, genreFilter).then(results => {
-      if (active) setOnlineResults(results);
-    });
-    return () => { active = false; };
+    setIsSearching(true);
+    const timer = setTimeout(() => {
+      searchOnlineTracks(searchQuery, genreFilter).then(results => {
+        if (active) {
+          setOnlineResults(results);
+          setIsSearching(false);
+        }
+      }).catch(() => {
+        if (active) setIsSearching(false);
+      });
+    }, 280);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
   }, [searchQuery, genreFilter]);
 
   if (!isOpen) return null;
@@ -198,7 +211,7 @@ export const MusicSearchModal: React.FC<MusicSearchModalProps> = ({
             }`}
           >
             <Globe className="w-4 h-4" />
-            Online Hi-Fi Catalog
+            Global 100M+ Library
           </button>
 
           <button
@@ -230,23 +243,30 @@ export const MusicSearchModal: React.FC<MusicSearchModalProps> = ({
         {activeTab !== 'custom_url' && (
           <div className="space-y-3 flex-shrink-0">
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${
+                isSearching ? 'text-gold-atmos animate-spin' : 'text-slate-400'
+              }`} />
               <input
                 type="text"
-                placeholder={activeTab === 'online' ? "Search by title, artist, symphony, jazz, ambient..." : "Filter your queue tracks..."}
+                placeholder={activeTab === 'online' ? "Search 100M+ songs by title or artist (e.g. Queen, Taylor Swift, Hans Zimmer, Daft Punk, Chopin)..." : "Filter your queue tracks..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-audiophile-950 border border-audiophile-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-sans"
+                className="w-full pl-10 pr-20 py-2.5 rounded-xl bg-audiophile-950 border border-audiophile-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-sans"
                 autoFocus
               />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white p-1"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                {isSearching && (
+                  <span className="text-[10px] font-mono text-gold-atmos animate-pulse">Searching...</span>
+                )}
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="text-slate-500 hover:text-white p-1"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
             </div>
 
             {activeTab === 'online' && (

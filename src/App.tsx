@@ -38,9 +38,24 @@ export const App: React.FC = () => {
   const [currentPreset, setCurrentPreset] = useState<EQPreset>(audioEngine.getCurrentPreset());
   const [metrics, setMetrics] = useState<AudioEngineMetrics>(audioEngine.getMetrics());
 
-  // Load track buffer into audio engine
+  // Load track buffer or online stream into audio engine
   const loadTrack = useCallback(async (track: AudioTrack, autoPlay: boolean = true) => {
     try {
+      if (track.url) {
+        // Stream directly from global online Apple Music catalog or custom web stream
+        await audioEngine.loadAudioUrl(track.url, track.duration);
+        setCurrentTrack(track);
+        setDuration(track.duration || 180);
+        setCurrentTime(0);
+        setMetrics(audioEngine.getMetrics());
+
+        if (autoPlay) {
+          audioEngine.play();
+          setIsPlaying(true);
+        }
+        return;
+      }
+
       let buffer = track.audioBuffer;
 
       // If procedural demo track, generate audio buffer
