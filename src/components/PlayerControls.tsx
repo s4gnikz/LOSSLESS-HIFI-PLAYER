@@ -98,17 +98,20 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
           </span>
 
           <div
-            className="flex-1 h-2 bg-audiophile-850 hover:h-2.5 rounded-full cursor-pointer relative transition-all overflow-visible"
+            className="flex-1 py-1.5 cursor-pointer relative group/bar"
             onMouseMove={handleProgressBarMouseMove}
             onMouseLeave={() => setHoverSeekTime(null)}
             onClick={handleProgressBarClick}
           >
-            {/* Progress Fill */}
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-amber-400 to-gold-atmos relative"
-              style={{ width: `${progressPercent}%` }}
-            >
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_10px_#ffffff] scale-0 group-hover:scale-100 transition-transform" />
+            {/* Visual Track */}
+            <div className="w-full h-2 bg-audiophile-850 rounded-full relative overflow-visible group-hover/bar:h-2.5 transition-all">
+              {/* Progress Fill */}
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-amber-400 to-gold-atmos relative transition-[width] duration-150 ease-linear"
+                style={{ width: `${progressPercent}%` }}
+              >
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_10px_#ffffff] scale-0 group-hover/bar:scale-100 transition-transform" />
+              </div>
             </div>
 
             {/* Hover Tooltip */}

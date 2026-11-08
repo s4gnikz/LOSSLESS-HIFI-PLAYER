@@ -19,6 +19,16 @@ export const SpatialAtmosPanel: React.FC<SpatialAtmosPanelProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, y: 0, yaw: 0, pitch: 0 });
 
+  // Refs to decouple the animation render loop from React state re-renders and eliminate jitter
+  const rotationAngleRef = useRef(rotationAngle);
+  rotationAngleRef.current = rotationAngle;
+
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
+
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+
   const modes: Array<{ id: SpatialMode; name: string; desc: string; icon: string }> = [
     {
       id: 'atmos_7_1_4',
@@ -93,9 +103,13 @@ export const SpatialAtmosPanel: React.FC<SpatialAtmosPanelProps> = ({
       const centerY = height / 2 + 15;
       const radius = Math.min(width, height) * 0.38;
 
+      const curRotation = rotationAngleRef.current;
+      const curSettings = settingsRef.current;
+      const curIsPlaying = isPlayingRef.current;
+
       // Projection math with yaw and pitch
-      const radYaw = (rotationAngle.yaw * Math.PI) / 180;
-      const radPitch = (rotationAngle.pitch * Math.PI) / 180;
+      const radYaw = (curRotation.yaw * Math.PI) / 180;
+      const radPitch = (curRotation.pitch * Math.PI) / 180;
 
       const project3D = (x: number, y: number, z: number) => {
         // Rotate around Y axis (yaw)
@@ -134,13 +148,13 @@ export const SpatialAtmosPanel: React.FC<SpatialAtmosPanelProps> = ({
       ctx.stroke();
 
       // Height Elevation Ring (y = 0.707 for top speakers)
-      if (settings.mode !== 'stereo') {
+      if (curSettings.mode !== 'stereo') {
         ctx.strokeStyle = 'rgba(212, 175, 55, 0.25)';
         ctx.setLineDash([4, 4]);
         ctx.beginPath();
         for (let a = 0; a <= 360; a += 10) {
           const rad = (a * Math.PI) / 180;
-          const p = project3D(Math.sin(rad) * 0.75, 0.75 * settings.heightImmersion, -Math.cos(rad) * 0.75);
+          const p = project3D(Math.sin(rad) * 0.75, 0.75 * curSettings.heightImmersion, -Math.cos(rad) * 0.75);
           if (a === 0) ctx.moveTo(p.px, p.py);
           else ctx.lineTo(p.px, p.py);
         }
@@ -171,7 +185,7 @@ export const SpatialAtmosPanel: React.FC<SpatialAtmosPanelProps> = ({
       ctx.stroke();
 
       // Orientation nose pointer
-      const headAngleRad = ((settings.listenerAngle - 90) * Math.PI) / 180;
+      const headAngleRad = ((curSettings.listenerAngle - 90) * Math.PI) / 180;
       const noseX = centerProj.px + Math.cos(headAngleRad - radYaw) * (headRadius + 4);
       const noseY = centerProj.py + Math.sin(headAngleRad - radYaw) * (headRadius + 4) * Math.cos(radPitch);
       ctx.fillStyle = '#f6d365';
@@ -185,8 +199,8 @@ export const SpatialAtmosPanel: React.FC<SpatialAtmosPanelProps> = ({
 
       // Sort speakers by depth for proper painter's algorithm
       const projectedSpeakers = speakers.map(spk => {
-        const spread = settings.surroundSpread;
-        const heightFac = settings.heightImmersion;
+        const spread = curSettings.surroundSpread;
+        const heightFac = curSettings.heightImmersion;
         const az = spk.azimuth * spread;
         const el = spk.elevation * heightFac;
 
@@ -203,7 +217,7 @@ export const SpatialAtmosPanel: React.FC<SpatialAtmosPanelProps> = ({
 
       projectedSpeakers.forEach(({ spk, proj, isHeight, isSub }) => {
         // Soundwave ray to center listener if playing
-        if (isPlaying && settings.enabled && settings.mode !== 'stereo') {
+        if (curIsPlaying && curSettings.enabled && curSettings.mode !== 'stereo') {
           const rayPulse = (Math.sin(time * 3 + spk.azimuth) + 1) * 0.5;
           ctx.strokeStyle = isHeight
             ? `rgba(212, 175, 55, ${0.1 + rayPulse * 0.3})`
@@ -257,7 +271,7 @@ export const SpatialAtmosPanel: React.FC<SpatialAtmosPanelProps> = ({
 
     render();
     return () => cancelAnimationFrame(animId);
-  }, [rotationAngle, isPlaying, settings]);
+  }, []);
 
   return (
     <div className="space-y-6">

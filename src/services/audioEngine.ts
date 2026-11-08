@@ -647,9 +647,14 @@ class AudioEngineService {
 
   private startTimeUpdater() {
     this.cancelTimeUpdater();
-    const update = () => {
+    let lastTimeUpdate = 0;
+    const update = (timestamp: number) => {
       if (this.isPlaying && this.onTimeUpdateCallback) {
-        this.onTimeUpdateCallback(this.getCurrentTime(), this.currentDuration);
+        // Throttle updates to ~4 times per second (250ms) to prevent re-rendering the entire React DOM tree 144 times/sec
+        if (timestamp - lastTimeUpdate >= 250) {
+          this.onTimeUpdateCallback(this.getCurrentTime(), this.currentDuration);
+          lastTimeUpdate = timestamp;
+        }
       }
       this.animationFrameId = requestAnimationFrame(update);
     };

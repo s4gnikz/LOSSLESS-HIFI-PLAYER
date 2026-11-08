@@ -246,9 +246,9 @@ export const PlaylistQueue: React.FC<PlaylistQueueProps> = ({
                     <div className="w-6 text-center text-xs font-mono text-slate-500 group-hover:text-white">
                       {isSelected && isPlaying ? (
                         <div className="flex items-end justify-center gap-0.5 h-3">
-                          <span className="w-0.5 h-2 bg-gold-atmos animate-sound-wave" />
-                          <span className="w-0.5 h-3 bg-gold-atmos animate-sound-wave [animation-delay:0.2s]" />
-                          <span className="w-0.5 h-1.5 bg-gold-atmos animate-sound-wave [animation-delay:0.4s]" />
+                          <span className="w-0.5 h-3 bg-gold-atmos origin-bottom animate-sound-wave" />
+                          <span className="w-0.5 h-3 bg-gold-atmos origin-bottom animate-sound-wave [animation-delay:0.2s]" />
+                          <span className="w-0.5 h-3 bg-gold-atmos origin-bottom animate-sound-wave [animation-delay:0.4s]" />
                         </div>
                       ) : (
                         <span>{idx + 1}</span>

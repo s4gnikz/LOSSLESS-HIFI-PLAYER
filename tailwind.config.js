@@ -49,8 +49,8 @@ export default {
       },
       keyframes: {
         soundwave: {
-          '0%, 100%': { height: '20%' },
-          '50%': { height: '100%' },
+          '0%, 100%': { transform: 'scaleY(0.25)', transformOrigin: 'bottom' },
+          '50%': { transform: 'scaleY(1.0)', transformOrigin: 'bottom' },
         }
       }
     },

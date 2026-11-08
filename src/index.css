@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
   body {
     @apply bg-audiophile-950 text-slate-100 font-sans antialiased overflow-x-hidden;
     color-scheme: dark;

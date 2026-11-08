@@ -19,6 +19,16 @@ export const VisualizerPanel: React.FC<VisualizerPanelProps> = ({
   // Peak hold array for spectrum analyzer
   const peakHold = useRef<number[]>(new Array(128).fill(0));
 
+  // Refs to prevent animation loop tear-down on every state update
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
+
+  const viewModeRef = useRef(viewMode);
+  viewModeRef.current = viewMode;
+
+  const isDolbyAtmosRef = useRef(isDolbyAtmos);
+  isDolbyAtmosRef.current = isDolbyAtmos;
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -32,9 +42,13 @@ export const VisualizerPanel: React.FC<VisualizerPanelProps> = ({
       const height = canvas.height;
       ctx.clearRect(0, 0, width, height);
 
+      const curIsPlaying = isPlayingRef.current;
+      const curViewMode = viewModeRef.current;
+      const curIsDolbyAtmos = isDolbyAtmosRef.current;
+
       const { left, right } = audioEngine.getAnalysers();
 
-      if (!left || !right || !isPlaying) {
+      if (!left || !right || !curIsPlaying) {
         // Idle visualization (gentle resting wave)
         ctx.fillStyle = '#06070a';
         ctx.fillRect(0, 0, width, height);
@@ -63,7 +77,7 @@ export const VisualizerPanel: React.FC<VisualizerPanelProps> = ({
       ctx.fillStyle = '#06070a';
       ctx.fillRect(0, 0, width, height);
 
-      if (viewMode === 'spectrum') {
+      if (curViewMode === 'spectrum') {
         // 128-Band FFT Spectrum Analyzer
         const bufferLength = left.frequencyBinCount;
         const dataLeft = new Uint8Array(bufferLength);
@@ -184,7 +198,7 @@ export const VisualizerPanel: React.FC<VisualizerPanelProps> = ({
         ctx.font = '11px JetBrains Mono';
         ctx.textAlign = 'left';
         ctx.fillText(`PHASE CORRELATION: ${correlation.toFixed(2)}`, 20, 30);
-        ctx.fillText(`STAGE DISPERSION: ${isDolbyAtmos ? 'DOLBY 3D BINAURAL' : 'STEREO'}`, 20, 48);
+        ctx.fillText(`STAGE DISPERSION: ${curIsDolbyAtmos ? 'DOLBY 3D BINAURAL' : 'STEREO'}`, 20, 48);
 
       } else {
         // Dual Channel Peak & RMS Level Meters (dBFS)
@@ -271,7 +285,7 @@ export const VisualizerPanel: React.FC<VisualizerPanelProps> = ({
 
     render();
     return () => cancelAnimationFrame(animId);
-  }, [isPlaying, viewMode, isDolbyAtmos]);
+  }, []);
 
   return (
     <div className="bg-audiophile-900 border border-audiophile-800 rounded-2xl p-6 shadow-xl space-y-4">
