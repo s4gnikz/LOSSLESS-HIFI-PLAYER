@@ -275,10 +275,15 @@ export const PlaylistQueue: React.FC<PlaylistQueueProps> = ({
 
                   {/* Right: Audiophile Specs & Duration */}
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    {/* Hi-Res Badge */}
+                    {/* Hi-Res & Full Playback Badges */}
                     <div className="hidden sm:flex items-center gap-1.5">
+                      {track.isFullPlayback && (
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                          FULL
+                        </span>
+                      )}
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-amber-500/10 text-gold-glow border border-gold-atmos/30">
-                        {track.format} {track.bitDepth}-bit / {(track.sampleRate / 1000).toFixed(1)}kHz
+                        {track.qualityBadge || `${track.format} ${track.bitDepth}-bit / ${(track.sampleRate / 1000).toFixed(1)}kHz`}
                       </span>
 
                       {track.isDolbyAtmosMaster && (

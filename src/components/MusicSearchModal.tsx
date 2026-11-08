@@ -35,7 +35,7 @@ export const MusicSearchModal: React.FC<MusicSearchModalProps> = ({
   const [isLoadingCustom, setIsLoadingCustom] = useState(false);
   const [customError, setCustomError] = useState<string | null>(null);
 
-  const genres = ['All', 'Dolby Atmos', 'Hi-Fi Radio', 'Classical', 'Jazz', 'Electronic', 'Rock', 'Pop'];
+  const genres = ['All', 'Full Songs', 'Dolby Atmos', 'Hi-Fi Radio', 'Classical', 'Rock', 'Pop', 'Hip-Hop', 'Electronic', 'Jazz'];
 
   // Search online tracks across 100+ Million songs
   useEffect(() => {
@@ -81,8 +81,11 @@ export const MusicSearchModal: React.FC<MusicSearchModalProps> = ({
       bitDepth: onlineTrack.bitDepth,
       sampleRate: onlineTrack.sampleRate,
       channels: onlineTrack.channels,
+      bitrate: onlineTrack.bitrate,
       isDolbyAtmosMaster: onlineTrack.isDolbyAtmosMaster,
-      isHiResLossless: onlineTrack.isHiResLossless
+      isHiResLossless: onlineTrack.isHiResLossless,
+      isFullPlayback: onlineTrack.isFullPlayback,
+      qualityBadge: onlineTrack.qualityBadge
     };
   };
 
@@ -185,10 +188,10 @@ export const MusicSearchModal: React.FC<MusicSearchModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-bold font-display text-white">
-                Music Search & Custom Stream Discovery
+                Global Music Search (Full Playback)
               </h3>
               <p className="text-[11px] text-slate-400 font-mono">
-                Explore Open Lossless Audio & Stream Any Custom Web URL
+                80M+ full-length songs with 100% complete playback & 24-bit Lossless FLAC streams
               </p>
             </div>
           </div>
@@ -211,7 +214,7 @@ export const MusicSearchModal: React.FC<MusicSearchModalProps> = ({
             }`}
           >
             <Globe className="w-4 h-4" />
-            Global 100M+ Library
+            Global 80M+ Full Songs
           </button>
 
           <button
@@ -248,7 +251,7 @@ export const MusicSearchModal: React.FC<MusicSearchModalProps> = ({
               }`} />
               <input
                 type="text"
-                placeholder={activeTab === 'online' ? "Search 100M+ songs by title or artist (e.g. Queen, Taylor Swift, Hans Zimmer, Daft Punk, Chopin)..." : "Filter your queue tracks..."}
+                placeholder={activeTab === 'online' ? "Search 80M+ songs with full playback (e.g. Queen, The Weeknd, Taylor Swift, Daft Punk, Chopin)..." : "Filter your queue tracks..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-20 py-2.5 rounded-xl bg-audiophile-950 border border-audiophile-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-sans"
@@ -318,12 +321,25 @@ export const MusicSearchModal: React.FC<MusicSearchModalProps> = ({
                         <p className="text-xs text-slate-400 truncate">
                           {track.artist} &bull; <span className="text-slate-500">{track.album}</span>
                         </p>
-                        <div className="flex items-center gap-1.5 mt-1">
-                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-gold-glow border border-gold-atmos/30">
-                            {track.format} {track.bitDepth}-bit / {(track.sampleRate / 1000).toFixed(1)}kHz
+                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                          {track.isFullPlayback ? (
+                            <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
+                              <Sparkles className="w-2.5 h-2.5" />
+                              FULL PLAYBACK
+                            </span>
+                          ) : (
+                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                              30s Preview
+                            </span>
+                          )}
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+                            {track.qualityBadge || `${track.format} ${track.bitDepth}-bit`}
+                          </span>
+                          <span className="text-[9px] font-mono text-slate-400">
+                            {Math.floor(track.duration / 60)}:{(track.duration % 60).toString().padStart(2, '0')}
                           </span>
                           {track.isDolbyAtmosMaster && (
-                            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/30">
                               ATMOS 7.1.4
                             </span>
                           )}

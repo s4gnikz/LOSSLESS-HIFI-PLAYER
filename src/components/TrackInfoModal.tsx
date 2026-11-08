@@ -61,7 +61,7 @@ export const TrackInfoModal: React.FC<TrackInfoModalProps> = ({ track, isOpen, o
         <div className="grid grid-cols-2 gap-3 text-xs font-mono">
           <div className="p-3 rounded-xl bg-audiophile-850/70 border border-audiophile-800">
             <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Container / Codec</span>
-            <span className="text-white font-bold text-sm mt-0.5 block">{track.format} (Lossless)</span>
+            <span className="text-white font-bold text-sm mt-0.5 block">{track.qualityBadge || `${track.format} (Lossless)`}</span>
           </div>
 
           <div className="p-3 rounded-xl bg-audiophile-850/70 border border-audiophile-800">

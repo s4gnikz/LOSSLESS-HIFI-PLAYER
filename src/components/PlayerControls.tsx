@@ -178,9 +178,14 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
               </div>
 
               {/* Audiophile Badges */}
-              <div className="flex items-center gap-1.5 mt-0.5 cursor-pointer" onClick={onOpenTrackDetails}>
+              <div className="flex items-center gap-1.5 mt-0.5 cursor-pointer flex-wrap" onClick={onOpenTrackDetails}>
+                {currentTrack?.isFullPlayback && (
+                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    FULL
+                  </span>
+                )}
                 <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-gold-glow border border-gold-atmos/40 hover:bg-amber-500/30 transition-colors">
-                  {currentTrack ? `${currentTrack.format} ${currentTrack.bitDepth}-bit/${(currentTrack.sampleRate / 1000).toFixed(1)}kHz` : '24-bit Hi-Res'}
+                  {currentTrack ? (currentTrack.qualityBadge || `${currentTrack.format} ${currentTrack.bitDepth}-bit/${(currentTrack.sampleRate / 1000).toFixed(1)}kHz`) : '24-bit Hi-Res'}
                 </span>
                 {currentTrack?.isDolbyAtmosMaster && (
                   <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 transition-colors">

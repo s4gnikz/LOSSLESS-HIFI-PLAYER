@@ -501,6 +501,10 @@ class AudioEngineService {
     this.pausedAt = 0;
 
     const ctx = this.getAudioContext();
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+
     if (!this.audioElement) {
       this.audioElement = new Audio();
       this.audioElement.crossOrigin = 'anonymous';
@@ -519,6 +523,14 @@ class AudioEngineService {
           this.onEndedCallback();
         }
       };
+      this.audioElement.onloadedmetadata = () => {
+        if (this.audioElement && this.audioElement.duration && isFinite(this.audioElement.duration)) {
+          this.currentDuration = this.audioElement.duration;
+          if (this.onTimeUpdateCallback) {
+            this.onTimeUpdateCallback(this.audioElement.currentTime, this.currentDuration);
+          }
+        }
+      };
       this.audioElement.ontimeupdate = () => {
         if (this.audioElement && this.onTimeUpdateCallback && this.isMediaElementMode) {
           if (this.audioElement.duration && !isNaN(this.audioElement.duration) && isFinite(this.audioElement.duration)) {
@@ -526,6 +538,9 @@ class AudioEngineService {
           }
           this.onTimeUpdateCallback(this.audioElement.currentTime, this.currentDuration);
         }
+      };
+      this.audioElement.onerror = (e) => {
+        console.warn("Audio element streaming error:", e, this.audioElement?.error);
       };
     }
 
@@ -546,6 +561,9 @@ class AudioEngineService {
 
   public play() {
     const ctx = this.getAudioContext();
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
 
     if (this.isMediaElementMode && this.audioElement) {
       this.audioElement.play().catch(e => console.warn("Audio stream playback:", e));
@@ -626,7 +644,11 @@ class AudioEngineService {
 
   public seek(seconds: number) {
     if (this.isMediaElementMode && this.audioElement) {
-      this.audioElement.currentTime = seconds;
+      const target = Math.max(0, Math.min(seconds, this.currentDuration));
+      this.audioElement.currentTime = target;
+      if (this.onTimeUpdateCallback) {
+        this.onTimeUpdateCallback(target, this.currentDuration);
+      }
       return;
     }
 

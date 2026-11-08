@@ -15,6 +15,8 @@ export interface AudioTrack {
   bitrate?: number; // in kbps
   isDolbyAtmosMaster?: boolean;
   isHiResLossless?: boolean;
+  isFullPlayback?: boolean;
+  qualityBadge?: string;
 }
 
 export interface EQPreset {
