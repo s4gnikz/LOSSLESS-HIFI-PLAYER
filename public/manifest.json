@@ -1,0 +1,17 @@
+{
+  "name": "AURA Hi-Fi Lossless Player",
+  "short_name": "AURA Hi-Fi",
+  "description": "Ad-Free HiFi Lossless Audio Player with 7.1.4 Dolby Atmos Spatial Engine and 10-Band EQ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#06070a",
+  "theme_color": "#d4af37",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

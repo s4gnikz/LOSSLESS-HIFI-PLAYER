@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Automated Git Commit and Push script for AURA Hi-Fi Player.
 .DESCRIPTION
@@ -27,3 +27,4 @@ Write-Host "🚀 [AURA Hi-Fi] Pushing updates to origin main..." -ForegroundColo
 git push origin main
 
 Write-Host "✅ [AURA Hi-Fi] Successfully synchronized with https://github.com/s4gnikz/LOSSLESS-HIFI-PLAYER" -ForegroundColor Green
+

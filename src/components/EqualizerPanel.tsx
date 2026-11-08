@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { EQPreset } from '../types/audio';
 import { EQ_FREQUENCIES, PREBUILT_EQ_PRESETS, audioEngine } from '../services/audioEngine';
-import { Sliders, Save, Trash2, RotateCcw, Sparkles, Check, BookmarkPlus, Zap } from 'lucide-react';
+import { Sliders, Save, Trash2, RotateCcw, Sparkles, Check, BookmarkPlus, Zap, Download, Upload } from 'lucide-react';
 
 interface EqualizerPanelProps {
   currentPreset: EQPreset;
@@ -71,6 +71,38 @@ export const EqualizerPanel: React.FC<EqualizerPanelProps> = ({
     localStorage.setItem('aura_custom_eq_presets', JSON.stringify(updated));
     if (currentPreset.id === id) {
       onSelectPreset(PREBUILT_EQ_PRESETS[1]);
+    }
+  };
+
+  const handleExportPresets = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(savedPresets, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "aura_hifi_custom_eq_presets.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
+  const handleImportPresets = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileReader = new FileReader();
+    if (e.target.files && e.target.files[0]) {
+      fileReader.readAsText(e.target.files[0], "UTF-8");
+      fileReader.onload = (event) => {
+        try {
+          const parsed = JSON.parse(event.target?.result as string);
+          if (Array.isArray(parsed)) {
+            const merged = [...savedPresets, ...parsed];
+            setSavedPresets(merged);
+            localStorage.setItem('aura_custom_eq_presets', JSON.stringify(merged));
+            if (parsed.length > 0) {
+              onSelectPreset(parsed[0]);
+            }
+          }
+        } catch (err) {
+          console.error("Failed to parse EQ presets JSON:", err);
+        }
+      };
     }
   };
 
@@ -240,6 +272,29 @@ export const EqualizerPanel: React.FC<EqualizerPanelProps> = ({
               <Save className="w-3.5 h-3.5" />
               Save As Custom
             </button>
+
+            {/* Export & Import JSON */}
+            {savedPresets.length > 0 && (
+              <button
+                onClick={handleExportPresets}
+                className="px-3 py-1.5 rounded-xl bg-audiophile-850 hover:bg-audiophile-800 border border-audiophile-700 text-xs font-semibold text-slate-300 transition-all flex items-center gap-1.5"
+                title="Export custom presets as JSON"
+              >
+                <Download className="w-3.5 h-3.5 text-cyan-400" />
+                Export
+              </button>
+            )}
+
+            <label className="px-3 py-1.5 rounded-xl bg-audiophile-850 hover:bg-audiophile-800 border border-audiophile-700 text-xs font-semibold text-slate-300 transition-all flex items-center gap-1.5 cursor-pointer">
+              <Upload className="w-3.5 h-3.5 text-emerald-400" />
+              Import
+              <input
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={handleImportPresets}
+              />
+            </label>
           </div>
         </div>
 

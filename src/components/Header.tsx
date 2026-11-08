@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Sliders, Volume2, ShieldCheck, Github, Radio, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Sliders, Volume2, ShieldCheck, Github, Radio, CheckCircle2, HelpCircle } from 'lucide-react';
 import { AudioEngineMetrics } from '../types/audio';
 
 interface HeaderProps {
@@ -7,6 +7,7 @@ interface HeaderProps {
   isBitPerfect: boolean;
   onToggleBitPerfect: () => void;
   onOpenGitHubModal: () => void;
+  onOpenShortcuts?: () => void;
   activeTab: 'player' | 'spatial' | 'eq' | 'visualizer';
   setActiveTab: (tab: 'player' | 'spatial' | 'eq' | 'visualizer') => void;
   isDolbyAtmosActive: boolean;
@@ -17,6 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   isBitPerfect,
   onToggleBitPerfect,
   onOpenGitHubModal,
+  onOpenShortcuts,
   activeTab,
   setActiveTab,
   isDolbyAtmosActive
@@ -143,6 +145,17 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="text-slate-600">&bull;</span>
             <span className="text-slate-400">{metrics.channelCount}ch</span>
           </div>
+
+          {/* Shortcuts Help Button */}
+          {onOpenShortcuts && (
+            <button
+              onClick={onOpenShortcuts}
+              className="p-1.5 rounded-lg bg-audiophile-850 hover:bg-audiophile-800 text-slate-300 hover:text-gold-glow border border-audiophile-700 transition-colors"
+              title="Keyboard Shortcuts (?)"
+            >
+              <HelpCircle className="w-4 h-4" />
+            </button>
+          )}
 
           {/* GitHub Sync Button */}
           <button

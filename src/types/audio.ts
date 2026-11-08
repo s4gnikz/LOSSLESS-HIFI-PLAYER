@@ -40,6 +40,7 @@ export interface SpatialSettings {
   binauralHRTF: boolean;
   lfeBoost: number; // -6 to +10 dB
   centerFocus: number; // 0 to 1
+  crossfeedAmount: number; // 0 to 1 (Bauer Binaural bs2b headphone crossfeed)
 }
 
 export interface AudioEngineMetrics {

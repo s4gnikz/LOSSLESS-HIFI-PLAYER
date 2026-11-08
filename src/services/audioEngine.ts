@@ -120,7 +120,8 @@ class AudioEngineService {
     headTrackingSimulation: false,
     binauralHRTF: true,
     lfeBoost: 2.5,
-    centerFocus: 0.7
+    centerFocus: 0.7,
+    crossfeedAmount: 0.35
   };
 
   // Listeners

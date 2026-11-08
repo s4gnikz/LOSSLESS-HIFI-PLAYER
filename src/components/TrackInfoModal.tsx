@@ -129,3 +129,4 @@ export const TrackInfoModal: React.FC<TrackInfoModalProps> = ({ track, isOpen, o
     </div>
   );
 };
+

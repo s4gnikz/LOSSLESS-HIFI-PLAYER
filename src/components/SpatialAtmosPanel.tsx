@@ -492,6 +492,27 @@ export const SpatialAtmosPanel: React.FC<SpatialAtmosPanelProps> = ({
             />
           </div>
 
+          {/* Bauer Binaural Headphone Crossfeed (bs2b) */}
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-xs font-semibold">
+              <span className="text-slate-300">Bauer Binaural Crossfeed (bs2b)</span>
+              <span className="font-mono text-purple-400">{((settings.crossfeedAmount || 0) * 100).toFixed(0)}%</span>
+            </div>
+            <input
+              type="range"
+              min="0.0"
+              max="1.0"
+              step="0.05"
+              value={settings.crossfeedAmount ?? 0.35}
+              onChange={(e) => onUpdateSettings({ crossfeedAmount: parseFloat(e.target.value) })}
+              className="w-full h-1.5 bg-audiophile-800 rounded-lg appearance-none cursor-pointer accent-purple-400"
+            />
+            <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+              <span>Direct Headphone</span>
+              <span>Loudspeaker Soundstage</span>
+            </div>
+          </div>
+
           {/* Listener Head-Tracking / Angle */}
           <div className="space-y-1.5 pt-2 border-t border-audiophile-800">
             <div className="flex justify-between text-xs font-semibold">

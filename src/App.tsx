@@ -7,6 +7,7 @@ import { VisualizerPanel } from './components/VisualizerPanel';
 import { PlaylistQueue } from './components/PlaylistQueue';
 import { GitHubSyncModal } from './components/GitHubSyncModal';
 import { TrackInfoModal } from './components/TrackInfoModal';
+import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { audioEngine, PREBUILT_EQ_PRESETS } from './services/audioEngine';
 import { PRESET_DEMO_TRACKS, generateDemoAudioBuffer } from './services/demoTracks';
 import { AudioTrack, EQPreset, SpatialSettings, AudioEngineMetrics } from './types/audio';
@@ -26,6 +27,7 @@ export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'player' | 'spatial' | 'eq' | 'visualizer'>('player');
   const [isGitHubModalOpen, setIsGitHubModalOpen] = useState<boolean>(false);
   const [isTrackInfoOpen, setIsTrackInfoOpen] = useState<boolean>(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState<boolean>(false);
   const [remoteUrl, setRemoteUrl] = useState<string>(() => {
     return localStorage.getItem('aura_github_remote_url') || 'https://github.com/s4gnikz/LOSSLESS-HIFI-PLAYER.git';
   });
@@ -158,6 +160,15 @@ export const App: React.FC = () => {
         const newMuted = !isMuted;
         setIsMuted(newMuted);
         audioEngine.setMute(newMuted);
+      } else if (e.code === 'KeyS') {
+        const newSpatial = !spatialSettings.enabled;
+        handleUpdateSpatial({ enabled: newSpatial });
+      } else if (e.code === 'KeyB') {
+        handleToggleBitPerfect();
+      } else if (e.code === 'KeyA') {
+        handleToggleAbCompare();
+      } else if (e.key === '?' || (e.shiftKey && e.code === 'Slash')) {
+        setIsShortcutsOpen(prev => !prev);
       }
     };
 
@@ -250,6 +261,7 @@ export const App: React.FC = () => {
         isBitPerfect={isBitPerfect}
         onToggleBitPerfect={handleToggleBitPerfect}
         onOpenGitHubModal={() => setIsGitHubModalOpen(true)}
+        onOpenShortcuts={() => setIsShortcutsOpen(true)}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isDolbyAtmosActive={spatialSettings.enabled && spatialSettings.mode !== 'stereo'}
@@ -338,6 +350,12 @@ export const App: React.FC = () => {
         track={currentTrack}
         isOpen={isTrackInfoOpen}
         onClose={() => setIsTrackInfoOpen(false)}
+      />
+
+      {/* Keyboard Shortcuts Cheatsheet Modal */}
+      <KeyboardShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
       />
 
       {/* GitHub Repository Sync Modal */}
