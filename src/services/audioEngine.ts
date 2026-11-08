@@ -420,6 +420,15 @@ class AudioEngineService {
     });
   }
 
+  public setPresetById(presetId: string): EQPreset | null {
+    const found = PREBUILT_EQ_PRESETS.find(p => p.id === presetId);
+    if (found) {
+      this.setEQPreset(found);
+      return found;
+    }
+    return null;
+  }
+
   public setBandGain(bandIndex: number, gain: number) {
     if (!this.currentPreset.gains) return;
     const newGains = [...this.currentPreset.gains];

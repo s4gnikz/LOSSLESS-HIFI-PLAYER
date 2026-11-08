@@ -30,6 +30,7 @@ export const App: React.FC = () => {
   const [isTrackInfoOpen, setIsTrackInfoOpen] = useState<boolean>(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState<boolean>(false);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [searchModalTab, setSearchModalTab] = useState<'ai' | 'online' | 'custom_url' | 'queue'>('ai');
   const [remoteUrl, setRemoteUrl] = useState<string>(() => {
     return localStorage.getItem('aura_github_remote_url') || 'https://github.com/s4gnikz/LOSSLESS-HIFI-PLAYER.git';
   });
@@ -186,7 +187,12 @@ export const App: React.FC = () => {
         handleToggleAbCompare();
       } else if ((e.ctrlKey || e.metaKey) && e.code === 'KeyK') {
         e.preventDefault();
-        setIsSearchOpen(prev => !prev);
+        setSearchModalTab('online');
+        setIsSearchOpen(true);
+      } else if ((e.ctrlKey || e.metaKey) && e.code === 'KeyJ') {
+        e.preventDefault();
+        setSearchModalTab('ai');
+        setIsSearchOpen(true);
       } else if (e.key === '?' || (e.shiftKey && e.code === 'Slash')) {
         setIsShortcutsOpen(prev => !prev);
       }
@@ -282,7 +288,10 @@ export const App: React.FC = () => {
         onToggleBitPerfect={handleToggleBitPerfect}
         onOpenGitHubModal={() => setIsGitHubModalOpen(true)}
         onOpenShortcuts={() => setIsShortcutsOpen(true)}
-        onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenSearch={(tab) => {
+          setSearchModalTab(tab || 'ai');
+          setIsSearchOpen(true);
+        }}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isDolbyAtmosActive={spatialSettings.enabled && spatialSettings.mode !== 'stereo'}
@@ -387,6 +396,13 @@ export const App: React.FC = () => {
         onPlayTrack={(t) => loadTrack(t, true)}
         onAddTrackToQueue={(t) => handleAddTracks([t])}
         currentQueue={tracks}
+        initialTab={searchModalTab}
+        onApplyEQPreset={(presetId) => {
+          const applied = audioEngine.setPresetById(presetId);
+          if (applied) {
+            setCurrentPreset(applied);
+          }
+        }}
       />
 
       {/* GitHub Repository Sync Modal */}

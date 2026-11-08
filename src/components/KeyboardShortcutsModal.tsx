@@ -19,6 +19,8 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ 
     { key: 'S', desc: 'Toggle Dolby Atmos 3D Spatializer' },
     { key: 'B', desc: 'Toggle Bit-Perfect Master Bypass' },
     { key: 'A', desc: 'Toggle A/B Instant Listening Comparison' },
+    { key: 'Ctrl+J', desc: 'Open AI Music Search & Discovery' },
+    { key: 'Ctrl+K', desc: 'Open 80M+ Library Search' },
     { key: '?', desc: 'Show this keyboard shortcuts guide' },
   ];
 

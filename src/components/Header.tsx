@@ -8,7 +8,7 @@ interface HeaderProps {
   onToggleBitPerfect: () => void;
   onOpenGitHubModal: () => void;
   onOpenShortcuts?: () => void;
-  onOpenSearch?: () => void;
+  onOpenSearch?: (tab?: 'ai' | 'online') => void;
   activeTab: 'player' | 'spatial' | 'eq' | 'visualizer';
   setActiveTab: (tab: 'player' | 'spatial' | 'eq' | 'visualizer') => void;
   isDolbyAtmosActive: boolean;
@@ -54,13 +54,22 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Mobile Buttons */}
           <div className="md:hidden flex items-center gap-2">
             {onOpenSearch && (
-              <button
-                onClick={onOpenSearch}
-                className="p-2 rounded-lg bg-audiophile-850 hover:bg-audiophile-800 border border-audiophile-700 text-cyan-400"
-                title="Search Music"
-              >
-                <Search className="w-4 h-4" />
-              </button>
+              <>
+                <button
+                  onClick={() => onOpenSearch('ai')}
+                  className="p-2 rounded-lg bg-purple-950/60 hover:bg-purple-900 border border-purple-600/40 text-purple-300"
+                  title="AI Music Search"
+                >
+                  <Sparkles className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => onOpenSearch('online')}
+                  className="p-2 rounded-lg bg-audiophile-850 hover:bg-audiophile-800 border border-audiophile-700 text-cyan-400"
+                  title="Search 80M+ Songs"
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+              </>
             )}
             <button
               onClick={onOpenGitHubModal}
@@ -72,19 +81,33 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Global Search Button */}
+        {/* Global & AI Search Buttons */}
         {onOpenSearch && (
-          <button
-            onClick={onOpenSearch}
-            className="hidden lg:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-audiophile-900 hover:bg-audiophile-850 border border-audiophile-800 hover:border-cyan-500/50 text-slate-400 hover:text-slate-200 text-xs transition-all group"
-            title="Search Lossless Music & Custom Streams (Ctrl+K)"
-          >
-            <Search className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
-            <span>Search music & streams...</span>
-            <kbd className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-audiophile-800 border border-audiophile-700 text-slate-400">
-              Ctrl+K
-            </kbd>
-          </button>
+          <div className="hidden lg:flex items-center gap-2">
+            <button
+              onClick={() => onOpenSearch('ai')}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-900/40 via-indigo-900/40 to-cyan-900/40 hover:from-purple-900/60 hover:to-cyan-900/60 border border-purple-500/40 hover:border-purple-400 text-purple-200 text-xs font-bold transition-all shadow-glow-purple group"
+              title="Natural Language AI Music Search & Discovery (Ctrl+J)"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-400 group-hover:rotate-12 transition-transform" />
+              <span>AI Search</span>
+              <kbd className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-purple-950 border border-purple-700/60 text-purple-300">
+                Ctrl+J
+              </kbd>
+            </button>
+
+            <button
+              onClick={() => onOpenSearch('online')}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-audiophile-900 hover:bg-audiophile-850 border border-audiophile-800 hover:border-cyan-500/50 text-slate-400 hover:text-slate-200 text-xs transition-all group"
+              title="Search 80M+ Full Songs (Ctrl+K)"
+            >
+              <Search className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
+              <span>Search 80M+ songs...</span>
+              <kbd className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-audiophile-800 border border-audiophile-700 text-slate-400">
+                Ctrl+K
+              </kbd>
+            </button>
+          </div>
         )}
 
         {/* Navigation Tabs */}
