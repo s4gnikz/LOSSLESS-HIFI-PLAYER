@@ -224,8 +224,16 @@ export const PlaylistQueue: React.FC<PlaylistQueueProps> = ({
 
         {/* Tracks List */}
         {tracks.length === 0 ? (
-          <div className="text-center py-12 text-slate-500 text-xs font-mono">
-            No tracks in queue. Drop FLAC/WAV files above or click "Load Hi-Res Demos".
+          <div className="text-center py-12 space-y-3">
+            <div className="w-12 h-12 mx-auto rounded-2xl bg-audiophile-950 border border-audiophile-800 flex items-center justify-center text-stone-500">
+              <Disc className="w-6 h-6 stroke-[1.5]" />
+            </div>
+            <div className="text-stone-200 font-bold text-sm font-display">
+              Playback Queue is Empty
+            </div>
+            <p className="text-stone-400 text-xs max-w-sm mx-auto font-sans leading-relaxed">
+              Drag & drop local FLAC, WAV, ALAC files above, or search 80M+ songs with AI music discovery.
+            </p>
           </div>
         ) : (
           <div className="space-y-2">

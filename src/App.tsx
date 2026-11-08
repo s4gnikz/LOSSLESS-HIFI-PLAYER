@@ -15,11 +15,11 @@ import { PRESET_DEMO_TRACKS, generateDemoAudioBuffer } from './services/demoTrac
 import { AudioTrack, EQPreset, SpatialSettings, AudioEngineMetrics } from './types/audio';
 
 export const App: React.FC = () => {
-  const [tracks, setTracks] = useState<AudioTrack[]>(PRESET_DEMO_TRACKS);
-  const [currentTrack, setCurrentTrack] = useState<AudioTrack | null>(PRESET_DEMO_TRACKS[0]);
+  const [tracks, setTracks] = useState<AudioTrack[]>([]);
+  const [currentTrack, setCurrentTrack] = useState<AudioTrack | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
-  const [duration, setDuration] = useState<number>(PRESET_DEMO_TRACKS[0].duration);
+  const [duration, setDuration] = useState<number>(0);
   const [volume, setVolume] = useState<number>(0.85);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isLoop, setIsLoop] = useState<boolean>(false);
@@ -49,11 +49,11 @@ export const App: React.FC = () => {
   const [currentPreset, setCurrentPreset] = useState<EQPreset>(audioEngine.getCurrentPreset());
   const [metrics, setMetrics] = useState<AudioEngineMetrics>(audioEngine.getMetrics());
 
-  // Load track buffer or online stream into audio engine
-  const loadTrack = useCallback(async (track: AudioTrack, autoPlay: boolean = true) => {
+  // Load track buffer or online stream into audio engine (zero auto-play unless user explicitly requests)
+  const loadTrack = useCallback(async (track: AudioTrack, autoPlay: boolean = false) => {
     try {
       if (track.url) {
-        // Stream directly from global online Apple Music catalog or custom web stream
+        // Stream directly from global online catalog or custom web stream
         await audioEngine.loadAudioUrl(track.url, track.duration);
         setCurrentTrack(track);
         setDuration(track.duration || 180);
@@ -63,6 +63,9 @@ export const App: React.FC = () => {
         if (autoPlay) {
           audioEngine.play();
           setIsPlaying(true);
+        } else {
+          audioEngine.pause();
+          setIsPlaying(false);
         }
         return;
       }
@@ -92,6 +95,9 @@ export const App: React.FC = () => {
         if (autoPlay) {
           audioEngine.play();
           setIsPlaying(true);
+        } else {
+          audioEngine.pause();
+          setIsPlaying(false);
         }
       }
     } catch (err) {
@@ -169,11 +175,10 @@ export const App: React.FC = () => {
     });
   }, [handleNextTrack, isAutoPlayNext]);
 
-  // Load initial track buffer once on mount
+  // Ensure audio engine is completely stopped and silent on initial mount (zero auto-play)
   useEffect(() => {
-    if (currentTrack) {
-      loadTrack(currentTrack, false);
-    }
+    audioEngine.stop();
+    setIsPlaying(false);
   }, []);
 
   // Keyboard Shortcuts
@@ -271,7 +276,8 @@ export const App: React.FC = () => {
   const handleAddTracks = (newTracks: AudioTrack[]) => {
     setTracks(prev => [...prev, ...newTracks]);
     if (!currentTrack && newTracks.length > 0) {
-      loadTrack(newTracks[0], true);
+      // Stage first track in deck but DO NOT auto-play
+      loadTrack(newTracks[0], false);
     }
   };
 
@@ -280,7 +286,7 @@ export const App: React.FC = () => {
     if (currentTrack?.id === trackId) {
       const remaining = tracks.filter(t => t.id !== trackId);
       if (remaining.length > 0) {
-        loadTrack(remaining[0], isPlaying);
+        loadTrack(remaining[0], false);
       } else {
         audioEngine.stop();
         setCurrentTrack(null);
@@ -299,7 +305,8 @@ export const App: React.FC = () => {
   const handleRestoreDemos = () => {
     setTracks(PRESET_DEMO_TRACKS);
     if (!currentTrack) {
-      loadTrack(PRESET_DEMO_TRACKS[0], true);
+      // Stage demo track in deck but DO NOT auto-play
+      loadTrack(PRESET_DEMO_TRACKS[0], false);
     }
   };
 
