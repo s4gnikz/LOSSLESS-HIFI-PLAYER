@@ -12,7 +12,9 @@ import {
   Info,
   Radio,
   FileAudio,
-  CheckCircle2
+  CheckCircle2,
+  Search,
+  Globe
 } from 'lucide-react';
 import { parseAudioFile } from '../services/audioParser';
 import { PRESET_DEMO_TRACKS, generateDemoAudioBuffer } from '../services/demoTracks';
@@ -27,6 +29,7 @@ interface PlaylistQueueProps {
   onRemoveTrack: (trackId: string) => void;
   onClearPlaylist: () => void;
   onRestoreDemos: () => void;
+  onOpenSearch?: () => void;
 }
 
 export const PlaylistQueue: React.FC<PlaylistQueueProps> = ({
@@ -37,7 +40,8 @@ export const PlaylistQueue: React.FC<PlaylistQueueProps> = ({
   onAddTracks,
   onRemoveTrack,
   onClearPlaylist,
-  onRestoreDemos
+  onRestoreDemos,
+  onOpenSearch
 }) => {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -164,6 +168,20 @@ export const PlaylistQueue: React.FC<PlaylistQueueProps> = ({
               <FileAudio className="w-4 h-4" />
               Browse Local Files
             </button>
+
+            {onOpenSearch && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenSearch();
+                }}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-glow-cyan hover:scale-105 transition-all flex items-center gap-2"
+              >
+                <Search className="w-4 h-4" />
+                Search & Stream Online
+              </button>
+            )}
 
             <button
               type="button"

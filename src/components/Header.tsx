@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Sliders, Volume2, ShieldCheck, Github, Radio, CheckCircle2, HelpCircle } from 'lucide-react';
+import { Sparkles, Sliders, Volume2, ShieldCheck, Github, Radio, CheckCircle2, HelpCircle, Search } from 'lucide-react';
 import { AudioEngineMetrics } from '../types/audio';
 
 interface HeaderProps {
@@ -8,6 +8,7 @@ interface HeaderProps {
   onToggleBitPerfect: () => void;
   onOpenGitHubModal: () => void;
   onOpenShortcuts?: () => void;
+  onOpenSearch?: () => void;
   activeTab: 'player' | 'spatial' | 'eq' | 'visualizer';
   setActiveTab: (tab: 'player' | 'spatial' | 'eq' | 'visualizer') => void;
   isDolbyAtmosActive: boolean;
@@ -19,6 +20,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleBitPerfect,
   onOpenGitHubModal,
   onOpenShortcuts,
+  onOpenSearch,
   activeTab,
   setActiveTab,
   isDolbyAtmosActive
@@ -49,8 +51,17 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Mobile GitHub Button */}
+          {/* Mobile Buttons */}
           <div className="md:hidden flex items-center gap-2">
+            {onOpenSearch && (
+              <button
+                onClick={onOpenSearch}
+                className="p-2 rounded-lg bg-audiophile-850 hover:bg-audiophile-800 border border-audiophile-700 text-cyan-400"
+                title="Search Music"
+              >
+                <Search className="w-4 h-4" />
+              </button>
+            )}
             <button
               onClick={onOpenGitHubModal}
               className="p-2 rounded-lg bg-audiophile-850 hover:bg-audiophile-800 border border-audiophile-700 text-slate-300"
@@ -60,6 +71,21 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Global Search Button */}
+        {onOpenSearch && (
+          <button
+            onClick={onOpenSearch}
+            className="hidden lg:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-audiophile-900 hover:bg-audiophile-850 border border-audiophile-800 hover:border-cyan-500/50 text-slate-400 hover:text-slate-200 text-xs transition-all group"
+            title="Search Lossless Music & Custom Streams (Ctrl+K)"
+          >
+            <Search className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
+            <span>Search music & streams...</span>
+            <kbd className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-audiophile-800 border border-audiophile-700 text-slate-400">
+              Ctrl+K
+            </kbd>
+          </button>
+        )}
 
         {/* Navigation Tabs */}
         <nav className="flex items-center gap-1 bg-audiophile-900/90 p-1 rounded-xl border border-audiophile-800/80 shadow-inner">

@@ -8,6 +8,7 @@ import { PlaylistQueue } from './components/PlaylistQueue';
 import { GitHubSyncModal } from './components/GitHubSyncModal';
 import { TrackInfoModal } from './components/TrackInfoModal';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
+import { MusicSearchModal } from './components/MusicSearchModal';
 import { audioEngine, PREBUILT_EQ_PRESETS } from './services/audioEngine';
 import { PRESET_DEMO_TRACKS, generateDemoAudioBuffer } from './services/demoTracks';
 import { AudioTrack, EQPreset, SpatialSettings, AudioEngineMetrics } from './types/audio';
@@ -28,6 +29,7 @@ export const App: React.FC = () => {
   const [isGitHubModalOpen, setIsGitHubModalOpen] = useState<boolean>(false);
   const [isTrackInfoOpen, setIsTrackInfoOpen] = useState<boolean>(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState<boolean>(false);
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [remoteUrl, setRemoteUrl] = useState<string>(() => {
     return localStorage.getItem('aura_github_remote_url') || 'https://github.com/s4gnikz/LOSSLESS-HIFI-PLAYER.git';
   });
@@ -167,6 +169,9 @@ export const App: React.FC = () => {
         handleToggleBitPerfect();
       } else if (e.code === 'KeyA') {
         handleToggleAbCompare();
+      } else if ((e.ctrlKey || e.metaKey) && e.code === 'KeyK') {
+        e.preventDefault();
+        setIsSearchOpen(prev => !prev);
       } else if (e.key === '?' || (e.shiftKey && e.code === 'Slash')) {
         setIsShortcutsOpen(prev => !prev);
       }
@@ -262,6 +267,7 @@ export const App: React.FC = () => {
         onToggleBitPerfect={handleToggleBitPerfect}
         onOpenGitHubModal={() => setIsGitHubModalOpen(true)}
         onOpenShortcuts={() => setIsShortcutsOpen(true)}
+        onOpenSearch={() => setIsSearchOpen(true)}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isDolbyAtmosActive={spatialSettings.enabled && spatialSettings.mode !== 'stereo'}
@@ -280,6 +286,7 @@ export const App: React.FC = () => {
               onRemoveTrack={handleRemoveTrack}
               onClearPlaylist={handleClearPlaylist}
               onRestoreDemos={handleRestoreDemos}
+              onOpenSearch={() => setIsSearchOpen(true)}
             />
           </div>
         )}
@@ -356,6 +363,15 @@ export const App: React.FC = () => {
       <KeyboardShortcutsModal
         isOpen={isShortcutsOpen}
         onClose={() => setIsShortcutsOpen(false)}
+      />
+
+      {/* Music Search & Custom Stream Discovery Modal */}
+      <MusicSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onPlayTrack={(t) => loadTrack(t, true)}
+        onAddTrackToQueue={(t) => handleAddTracks([t])}
+        currentQueue={tracks}
       />
 
       {/* GitHub Repository Sync Modal */}
