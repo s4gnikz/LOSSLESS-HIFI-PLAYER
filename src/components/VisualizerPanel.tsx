@@ -342,3 +342,4 @@ export const VisualizerPanel: React.FC<VisualizerPanelProps> = ({
     </div>
   );
 };
+

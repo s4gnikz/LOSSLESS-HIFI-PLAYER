@@ -146,9 +146,22 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
 
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <h4 className="text-sm font-bold text-white truncate font-display">
+                <h4
+                  onClick={onOpenTrackDetails}
+                  className="text-sm font-bold text-white truncate font-display cursor-pointer hover:text-gold-glow transition-colors"
+                  title="Click to view full audio stream forensic telemetry"
+                >
                   {currentTrack?.title || 'No Track Selected'}
                 </h4>
+                {currentTrack && (
+                  <button
+                    onClick={onOpenTrackDetails}
+                    className="text-slate-500 hover:text-cyan-300 transition-colors p-0.5"
+                    title="Audio Stream Telemetry Inspector"
+                  >
+                    <Info className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
 
               <div className="flex items-center gap-1.5 text-xs text-slate-400 truncate">
@@ -162,12 +175,12 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
               </div>
 
               {/* Audiophile Badges */}
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-gold-glow border border-gold-atmos/40">
+              <div className="flex items-center gap-1.5 mt-0.5 cursor-pointer" onClick={onOpenTrackDetails}>
+                <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-gold-glow border border-gold-atmos/40 hover:bg-amber-500/30 transition-colors">
                   {currentTrack ? `${currentTrack.format} ${currentTrack.bitDepth}-bit/${(currentTrack.sampleRate / 1000).toFixed(1)}kHz` : '24-bit Hi-Res'}
                 </span>
                 {currentTrack?.isDolbyAtmosMaster && (
-                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 transition-colors">
                     ATMOS 7.1.4
                   </span>
                 )}
@@ -289,3 +302,4 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
     </div>
   );
 };
+

@@ -14,7 +14,7 @@ export const GitHubSyncModal: React.FC<GitHubSyncModalProps> = ({
   remoteUrl,
   onSaveRemoteUrl
 }) => {
-  const [urlInput, setUrlInput] = useState(remoteUrl || 'https://github.com/sagniksarkar/lossless-hifi-player.git');
+  const [urlInput, setUrlInput] = useState(remoteUrl || 'https://github.com/s4gnikz/LOSSLESS-HIFI-PLAYER.git');
   const [copied, setCopied] = useState(false);
   const [isPushing, setIsPushing] = useState(false);
   const [pushStatus, setPushStatus] = useState<string | null>(null);
@@ -129,3 +129,4 @@ export const GitHubSyncModal: React.FC<GitHubSyncModalProps> = ({
     </div>
   );
 };
+

@@ -84,9 +84,10 @@ To push this repository to your GitHub account:
 
 ```bash
 # Set your remote repository
-git remote add origin https://github.com/<YOUR_USERNAME>/<YOUR_REPOSITORY>.git
+git remote add origin https://github.com/s4gnikz/LOSSLESS-HIFI-PLAYER.git
 
 # Push main branch
 git branch -M main
 git push -u origin main
 ```
+

@@ -6,6 +6,7 @@ import { EqualizerPanel } from './components/EqualizerPanel';
 import { VisualizerPanel } from './components/VisualizerPanel';
 import { PlaylistQueue } from './components/PlaylistQueue';
 import { GitHubSyncModal } from './components/GitHubSyncModal';
+import { TrackInfoModal } from './components/TrackInfoModal';
 import { audioEngine, PREBUILT_EQ_PRESETS } from './services/audioEngine';
 import { PRESET_DEMO_TRACKS, generateDemoAudioBuffer } from './services/demoTracks';
 import { AudioTrack, EQPreset, SpatialSettings, AudioEngineMetrics } from './types/audio';
@@ -24,8 +25,9 @@ export const App: React.FC = () => {
   const [isAbCompareOriginal, setIsAbCompareOriginal] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'player' | 'spatial' | 'eq' | 'visualizer'>('player');
   const [isGitHubModalOpen, setIsGitHubModalOpen] = useState<boolean>(false);
+  const [isTrackInfoOpen, setIsTrackInfoOpen] = useState<boolean>(false);
   const [remoteUrl, setRemoteUrl] = useState<string>(() => {
-    return localStorage.getItem('aura_github_remote_url') || 'https://github.com/sagniksarkar/lossless-hifi-player.git';
+    return localStorage.getItem('aura_github_remote_url') || 'https://github.com/s4gnikz/LOSSLESS-HIFI-PLAYER.git';
   });
 
   const [spatialSettings, setSpatialSettings] = useState<SpatialSettings>(audioEngine.getSpatialSettings());
@@ -328,6 +330,14 @@ export const App: React.FC = () => {
         }}
         onToggleShuffle={() => setIsShuffle(!isShuffle)}
         onToggleAbCompare={handleToggleAbCompare}
+        onOpenTrackDetails={() => setIsTrackInfoOpen(true)}
+      />
+
+      {/* Audio Stream Telemetry & Forensic Inspector Modal */}
+      <TrackInfoModal
+        track={currentTrack}
+        isOpen={isTrackInfoOpen}
+        onClose={() => setIsTrackInfoOpen(false)}
       />
 
       {/* GitHub Repository Sync Modal */}
@@ -340,3 +350,4 @@ export const App: React.FC = () => {
     </div>
   );
 };
+

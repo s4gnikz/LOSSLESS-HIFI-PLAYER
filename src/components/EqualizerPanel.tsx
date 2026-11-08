@@ -461,3 +461,4 @@ export const EqualizerPanel: React.FC<EqualizerPanelProps> = ({
     </div>
   );
 };
+

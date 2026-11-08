@@ -197,3 +197,4 @@ export const PRESET_DEMO_TRACKS: AudioTrack[] = [
     coverArt: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=800&auto=format&fit=crop&q=80',
   }
 ];
+
