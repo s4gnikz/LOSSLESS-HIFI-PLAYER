@@ -29,6 +29,7 @@ interface PlayerControlsProps {
   isLoop: boolean;
   isShuffle: boolean;
   isAbCompareOriginal: boolean;
+  isAutoPlayNext?: boolean;
   onPlayPause: () => void;
   onSeek: (time: number) => void;
   onPrev: () => void;
@@ -38,6 +39,7 @@ interface PlayerControlsProps {
   onToggleLoop: () => void;
   onToggleShuffle: () => void;
   onToggleAbCompare: () => void;
+  onToggleAutoPlayNext?: () => void;
   onOpenTrackDetails?: () => void;
 }
 
@@ -51,6 +53,7 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
   isLoop,
   isShuffle,
   isAbCompareOriginal,
+  isAutoPlayNext = false,
   onPlayPause,
   onSeek,
   onPrev,
@@ -60,6 +63,7 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
   onToggleLoop,
   onToggleShuffle,
   onToggleAbCompare,
+  onToggleAutoPlayNext,
   onOpenTrackDetails,
 }) => {
   const [hoverSeekTime, setHoverSeekTime] = useState<number | null>(null);
@@ -251,6 +255,22 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
               >
                 {isLoop ? <Repeat1 className="w-4 h-4" /> : <Repeat className="w-4 h-4" />}
               </button>
+
+              {/* Stop After Song / Auto-Advance Toggle */}
+              {onToggleAutoPlayNext && (
+                <button
+                  onClick={onToggleAutoPlayNext}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold transition-all border flex items-center gap-1.5 select-none ${
+                    !isAutoPlayNext
+                      ? 'bg-amber-500/20 text-gold-glow border-gold-atmos/40 shadow-sm'
+                      : 'bg-audiophile-900 text-stone-400 border-audiophile-800 hover:text-stone-200'
+                  }`}
+                  title={!isAutoPlayNext ? "Single Track Mode: Stops automatically after this song" : "Continuous Play: Autoplays next track in queue"}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${!isAutoPlayNext ? 'bg-amber-400 shadow-[0_0_6px_#f59e0b]' : 'bg-stone-600'}`} />
+                  <span>{!isAutoPlayNext ? 'Stop After Song' : 'Autoplay'}</span>
+                </button>
+              )}
             </div>
           </div>
 

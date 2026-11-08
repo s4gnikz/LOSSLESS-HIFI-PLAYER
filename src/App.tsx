@@ -24,6 +24,9 @@ export const App: React.FC = () => {
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isLoop, setIsLoop] = useState<boolean>(false);
   const [isShuffle, setIsShuffle] = useState<boolean>(false);
+  const [isAutoPlayNext, setIsAutoPlayNext] = useState<boolean>(() => {
+    return localStorage.getItem('aura_autoplay_next') === 'true'; // Defaults to false (Stop after one song)
+  });
   const [isBitPerfect, setIsBitPerfect] = useState<boolean>(false);
   const [isAbCompareOriginal, setIsAbCompareOriginal] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'player' | 'spatial' | 'eq' | 'visualizer'>('player');
@@ -139,6 +142,14 @@ export const App: React.FC = () => {
     loadTrack(tracks[prevIndex], true);
   }, [tracks, currentTrack, currentTime, loadTrack]);
 
+  const handleToggleAutoPlayNext = () => {
+    setIsAutoPlayNext(prev => {
+      const next = !prev;
+      localStorage.setItem('aura_autoplay_next', String(next));
+      return next;
+    });
+  };
+
   // Audio Engine Event Subscriptions
   useEffect(() => {
     audioEngine.onTimeUpdate((time, dur) => {
@@ -147,14 +158,23 @@ export const App: React.FC = () => {
     });
 
     audioEngine.onEnded(() => {
-      handleNextTrack();
+      if (isAutoPlayNext) {
+        handleNextTrack();
+      } else {
+        // Stop cleanly after one song (zero auto playback)
+        audioEngine.stop();
+        setIsPlaying(false);
+        setCurrentTime(0);
+      }
     });
+  }, [handleNextTrack, isAutoPlayNext]);
 
-    // Load initial track buffer
+  // Load initial track buffer once on mount
+  useEffect(() => {
     if (currentTrack) {
       loadTrack(currentTrack, false);
     }
-  }, [handleNextTrack, loadTrack]);
+  }, []);
 
   // Keyboard Shortcuts
   useEffect(() => {
@@ -192,6 +212,8 @@ export const App: React.FC = () => {
         handleToggleBitPerfect();
       } else if (e.code === 'KeyA') {
         handleToggleAbCompare();
+      } else if (e.code === 'KeyP') {
+        handleToggleAutoPlayNext();
       } else if ((e.ctrlKey || e.metaKey) && e.code === 'KeyK') {
         e.preventDefault();
         setSearchModalTab('online');
@@ -362,6 +384,7 @@ export const App: React.FC = () => {
         isLoop={isLoop}
         isShuffle={isShuffle}
         isAbCompareOriginal={isAbCompareOriginal}
+        isAutoPlayNext={isAutoPlayNext}
         onPlayPause={handlePlayPause}
         onSeek={(t) => audioEngine.seek(t)}
         onPrev={handlePrevTrack}
@@ -382,6 +405,7 @@ export const App: React.FC = () => {
         }}
         onToggleShuffle={() => setIsShuffle(!isShuffle)}
         onToggleAbCompare={handleToggleAbCompare}
+        onToggleAutoPlayNext={handleToggleAutoPlayNext}
         onOpenTrackDetails={() => setIsTrackInfoOpen(true)}
       />
 
